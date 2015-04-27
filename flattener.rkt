@@ -213,3 +213,7 @@
              (return-sorted-modules (get-all-required-modules file)))
           (displayln (file->module file #t))))
        mega-file))
+       
+;; run with cmdline argument if called
+(module* main #f
+  (flatten-modules (car (vector->list (current-command-line-arguments)))))
