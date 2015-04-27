@@ -212,4 +212,5 @@
        
 ;; run with cmdline argument if called
 (module* main #f
-  (flatten-modules (car (vector->list (current-command-line-arguments)))))
+ (managed-compile-zo
+   (flatten-modules (car (vector->list (current-command-line-arguments))))))
