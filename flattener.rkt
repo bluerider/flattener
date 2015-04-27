@@ -148,7 +148,22 @@
                            
 ;; return a sorted list of modules according to the # of times they are required
 (define (return-sorted-modules modules)
-  (remove-duplicates (sort modules string<=?)))
+  ;; generate a list of needed modules and their frequencies of use
+  ;;   (int string)
+  (define (iterator modules sorted-modules)
+    (if (null? modules)
+        sorted-modules
+        (let ([filtered-modules (remove* (list (car modules))
+                                         modules)])
+             (iterator filtered-modules
+                       (cons (list (- (length modules) (length filtered-modules))
+                                   (car modules))
+                             sorted-modules)))))
+ (map cadr
+  ;; sort modules by frequency usage
+  (sort (iterator modules '()) (lambda (first second)
+                                 (>= (car first)
+                                     (car second))))))
   
 ;; need to solve #lang issues; can be converted to (module s-exp <#lang>)
 (define file->module
