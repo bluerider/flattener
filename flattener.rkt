@@ -119,8 +119,8 @@
 ;; convert requires to use ""->'
 ;; produce a module
 
-;; return the arguments to a process
-(define (return-require-args file)
+;; get the required modules of a module
+(define (get-required-modules file)
     (foldl (lambda (string condensor)
              (let ([split-string (string-split string)])
                   (cond ((null? split-string)
@@ -134,36 +134,17 @@
            '()
            (string-split-parens (file->string file))
            ))
-            
-;; get the required modules of a file
-(define (get-required-modules file)
-  (return-require-args file))
-      
+           
 ;; recursively get all required modules of a file
+;;  need to reverse the list
 (define (get-all-required-modules file)
-  (let ([found-modules (get-required-modules file)])
-           (append found-modules 
-                 (append-map get-all-required-modules
-                   (filter non-built-in-module? found-modules)))))
+   (append-map (lambda (module)
+                 (cons module (get-all-required-modules module)))
+        (filter non-built-in-module? (get-required-modules file))))
                            
 ;; return a sorted list of modules according to the # of times they are required
 (define (return-sorted-modules modules)
-  ;; generate a list of needed modules and their frequencies of use
-  ;;   (int string)
-  (define (iterator modules sorted-modules)
-    (if (null? modules)
-        sorted-modules
-        (let ([filtered-modules (remove* (list (car modules))
-                                         modules)])
-             (iterator filtered-modules
-                       (cons (list (- (length modules) (length filtered-modules))
-                                   (car modules))
-                             sorted-modules)))))
- (map cadr
-  ;; sort modules by frequency usage
-  (sort (iterator modules '()) (lambda (first second)
-                                 (>= (car first)
-                                     (car second))))))
+  (remove-duplicates (reverse modules)))
   
 ;; need to solve #lang issues; can be converted to (module s-exp <#lang>)
 (define file->module
